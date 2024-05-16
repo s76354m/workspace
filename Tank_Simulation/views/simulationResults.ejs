@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<%- include('partials/_head.ejs'); %>
+<body>
+  <%- include('partials/_header.ejs'); %>
+  <main class="container mt-4">
+    <h1>Simulation Results</h1>
+    <div>
+      <% if (results && results.length > 0) { %>
+        <% results.forEach(function(result) { %>
+          <div class="result">
+            <h2><%= result.tankName %></h2>
+            <p>Shots Fired: <%= result.shotsFired %></p>
+            <p>Damage Done: <%= result.damageDone %></p>
+            <p>Tanks Knocked Out: <%= result.tanksKnockedOut %></p>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>No results to display.</p>
+      <% } %>
+    </div>
+  </main>
+  <%- include('partials/_footer.ejs'); %>
+</body>
+</html>

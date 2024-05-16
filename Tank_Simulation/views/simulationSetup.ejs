@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+<%- include('partials/_header.ejs') %>
+<main role="main" class="container mt-4">
+    <h1>Simulation Setup</h1>
+    <form id="simulationSetupForm">
+        <div class="form-group">
+            <label for="tankSelect">Select Tanks:</label>
+            <% tanks.forEach(function(tank){ %>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <input type="checkbox" aria-label="Checkbox for following text input" name="tanks[<%= tank._id %>][selected]" value="true" data-tank-id="<%= tank._id %>">
+                        </div>
+                    </div>
+                    <input type="number" class="form-control" aria-label="Text input with checkbox" placeholder="Quantity" name="tanks[<%= tank._id %>][quantity]">
+                    <label class="form-control"><%= tank.name %></label>
+                </div>
+            <% }) %>
+        </div>
+        <div class="form-group">
+            <label for="mapSelect">Select Map:</label>
+            <select class="form-control" id="mapSelect" name="mapId">
+                <% maps.forEach(function(map){ %>
+                    <option value="<%= map._id %>"><%= map.name %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="mapCanvas">Map Preview:</label>
+            <canvas id="mapCanvas" width="800" height="600" style="border:1px solid #000;"></canvas>
+        </div>
+        <button type="submit" class="btn btn-primary">Start Simulation</button>
+    </form>
+</main>
+<%- include('partials/_footer.ejs') %>
+<script src="/js/simulationSetup.js" type="module"></script>
+<script src="/js/battleVisualization.js" type="module"></script>
+</body>
+</html>
