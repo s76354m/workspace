@@ -5,7 +5,7 @@
 <%- include('partials/_header.ejs') %>
 <main role="main" class="container mt-4">
     <h1>Simulation Setup</h1>
-    <form id="simulationSetupForm">
+    <form id="simulationSetupForm" action="/simulation/start" method="POST">
         <div class="form-group">
             <label for="tankSelect">Select Tanks:</label>
             <% tanks.forEach(function(tank){ %>
