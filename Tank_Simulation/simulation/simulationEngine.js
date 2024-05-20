@@ -20,6 +20,11 @@ async function simulateBattle(tankIds, mapId, tankPositions, quantities) {
         const map = await Map.findById(mapId).populate('terrains');
         if (!map) throw new Error('No map found with the provided ID');
 
+        // Validate tank positions
+        if (!Array.isArray(tankPositions) || tankPositions.length === 0) {
+            throw new Error('Invalid tank positions provided.');
+        }
+
         // Simulation logic to determine movements, engagements, and outcomes
         const results = performBattle(tanksWithQuantities, map, tankPositions);
 

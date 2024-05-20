@@ -28,15 +28,16 @@
                 <% }) %>
             </select>
         </div>
+        <button type="submit" class="btn btn-primary">Start Simulation</button>
         <div class="form-group">
             <label for="mapCanvas">Map Preview:</label>
             <canvas id="mapCanvas" width="800" height="600" style="border:1px solid #000;"></canvas>
         </div>
-        <button type="submit" class="btn btn-primary">Start Simulation</button>
+        <!-- Ensure the Start Simulation button is displayed -->
+        
     </form>
 </main>
 <%- include('partials/_footer.ejs') %>
 <script src="/js/simulationSetup.js" type="module"></script>
-<script src="/js/battleVisualization.js" type="module"></script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-// Load environment variables
 require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
@@ -19,6 +18,14 @@ const port = process.env.PORT || 3000;
 // Middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Middleware to set MIME type for JavaScript modules
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js')) {
+    res.type('application/javascript');
+  }
+  next();
+});
 
 // Setting the templating engine to EJS
 app.set("view engine", "ejs");

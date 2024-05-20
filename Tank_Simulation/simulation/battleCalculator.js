@@ -39,6 +39,10 @@ function createGrid(map) {
 }
 
 function isValidPosition(grid, position) {
+    if (!grid || !Array.isArray(grid) || grid.length === 0 || !Array.isArray(grid[0])) {
+        console.error('Invalid grid structure:', grid);
+        return false;
+    }
     return position.x >= 0 && position.x < grid[0].length && position.y >= 0 && position.y < grid.length;
 }
 

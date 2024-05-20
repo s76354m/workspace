@@ -17,22 +17,15 @@ window.addEventListener('resize', () => {
     console.log('Window resized, adjusting canvas size.');
     clearCanvas();
     drawAllTanks();
-    if (currentMapId) {
-        drawMapAndTerrains(currentMapId).catch(error => {
-            console.error('Error re-drawing map and terrains after resize:', error.message, error.stack);
-        });
-    }
+    drawMapAndTerrains().catch(error => {
+        console.error('Error re-drawing map and terrains after resize:', error.message, error.stack);
+    });
 });
 
 /**
  * Object to store tank representations
  */
 const tanks = {};
-
-/**
- * Variable to store the current map ID for re-drawing after resize
- */
-let currentMapId = null;
 
 /**
  * Function to add a tank to the canvas
@@ -64,28 +57,6 @@ function drawTank(tankId) {
     }
     ctx.fillStyle = color;
     ctx.fillRect(position.x, position.y, 50, 30); // Drawing tank as a rectangle for simplicity
-}
-
-/**
- * Function to move a tank on the canvas
- * @param {string} tankId - The ID of the tank
- * @param {object} newPosition - The new position of the tank
- */
-function moveTank(tankId, newPosition) {
-    if (!tanks[tankId]) {
-        console.error(`Tank with ID ${tankId} not found.`);
-        return;
-    }
-    if (!newPosition || typeof newPosition.x !== 'number' || typeof newPosition.y !== 'number') {
-        console.error(`Invalid new position for tank ID ${tankId}:`, newPosition);
-        return;
-    }
-    // Update tank position
-    tanks[tankId].position = newPosition;
-    // Need to clear canvas and redraw all tanks to move one tank
-    clearCanvas();
-    drawAllTanks();
-    console.log(`Tank with ID ${tankId} moved to (${newPosition.x}, ${newPosition.y}).`);
 }
 
 /**
@@ -166,8 +137,6 @@ async function drawMapAndTerrains(mapId) {
         console.error('Failed to draw map and terrains: No map data');
         return;
     }
-    // Store the current map ID for re-drawing purposes
-    currentMapId = mapId;
     clearCanvas(); // Clear the canvas before drawing the new map
     // Adjusted to draw terrains based on terrainLayouts
     if (mapData.terrainLayouts && Array.isArray(mapData.terrainLayouts)) {
@@ -191,33 +160,5 @@ import { convertResultsToArray } from './simulationUtils.js';
 
 export const visualizationApi = {
     addTank,
-    moveTank,
-    updateWithSimulationResults: function(simulationResults) {
-        // Clear the canvas for simplicity before updating
-        clearCanvas();
-
-        // Preprocess simulation results to ensure they are in array format
-        const resultsArray = convertResultsToArray(simulationResults);
-
-        resultsArray.forEach(result => {
-            console.log('Processing result:', result);
-            
-            // Validate result structure
-            if (!result.tankId || !result.position || typeof result.position.x !== 'number' || typeof result.position.y !== 'number') {
-                console.error('Invalid result:', result);
-                return;
-            }
-
-            if (result.status === 'knocked_out') {
-                console.log(`Tank with ID ${result.tankId} was knocked out.`);
-            } else {
-                if (!tanks[result.tankId]) {
-                    addTank(result.tankId, result.position, 'green');
-                } else {
-                    moveTank(result.tankId, result.position);
-                }
-            }
-        });
-    },
     drawMapAndTerrains
 };

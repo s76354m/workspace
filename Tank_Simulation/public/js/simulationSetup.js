@@ -102,7 +102,6 @@ async function updateVisualization(simulationResults) {
                     }
                 }
             });
-            visualizationApi.updateWithSimulationResults(simulationResults);
         } else if (typeof simulationResults === 'object') {
             // Handle object format
             const resultsArray = Object.keys(simulationResults).map(key => {
