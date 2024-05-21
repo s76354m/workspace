@@ -59,7 +59,11 @@ The Tank_Simulation project uses a modern web architecture with the following te
    node seeders/tankSeeder.js
    node seeders/mapTerrainSeeder.js
    ```
-5. Start the application:
+5. Update terrain data (if needed):
+   ```sh
+   npm run update-terrains
+   ```
+6. Start the application:
    ```sh
    npm start
    ```

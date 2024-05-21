@@ -1,4 +1,4 @@
-const { initThreeScene, addTerrainToScene } = require('./threeInit.js');
+const { addTerrainToScene, addTankToScene } = require('./threeInit.js');
 
 document.addEventListener('DOMContentLoaded', function() {
   const mapSelect = document.getElementById('map');
@@ -7,7 +7,27 @@ document.addEventListener('DOMContentLoaded', function() {
   const alliesTanksSelect = document.getElementById('allies-tanks');
   const axisTanksSelect = document.getElementById('axis-tanks');
 
-  const { scene } = initThreeScene(mapContainer);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, mapContainer.clientWidth / mapContainer.clientHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer();
+
+  renderer.setSize(mapContainer.clientWidth, mapContainer.clientHeight);
+  mapContainer.appendChild(renderer.domElement);
+
+  camera.position.z = 10;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  console.log('Three.js scene initialized successfully');
+
+  const showError = (message) => {
+    errorMessageElement.textContent = message;
+    errorMessageElement.classList.remove('d-none');
+  };
 
   mapSelect.addEventListener('change', function() {
     const selectedMapId = mapSelect.value;
@@ -24,45 +44,29 @@ document.addEventListener('DOMContentLoaded', function() {
           throw new Error('Invalid map data received from the server');
         }
 
+        // Log terrain data for debugging
+        console.log('Terrain data received:', map.terrains);
+
         // Clear the Three.js scene
         while (scene.children.length > 0) {
           scene.remove(scene.children[0]);
         }
 
-        // Define coordinates for different terrains
-        const terrainCoordinates = {
-          'forest': { x: -2, y: 0, z: 0 },
-          'hill': { x: 2, y: 0, z: 0 },
-          'city': { x: 0, y: 0, z: 2 },
-          'plain': { x: 0, y: 0, z: -2 }
-        };
-
         map.terrains.forEach(terrain => {
-          if (!terrain.type) {
-            console.error('Terrain data missing type property');
-            return;
-          }
-          const coords = terrainCoordinates[terrain.type] || { x: 0, y: 0, z: 0 };
-
-          // Log the terrain type and coordinates
-          console.log(`Adding terrain of type ${terrain.type} at coordinates (${coords.x}, ${coords.y}, ${coords.z})`);
-
-          addTerrainToScene(scene, terrain.type, coords.x, coords.y, coords.z);
+          addTerrainToScene(scene, terrain.type, terrain.x, terrain.y, terrain.z);
         });
       })
       .catch(error => {
         console.error('Error fetching map data:', error);
         console.error(error.stack);
-        errorMessageElement.textContent = 'Error fetching map data. Please try again later.';
-        errorMessageElement.classList.remove('d-none');
+        showError('Error fetching map data. Please try again later.');
       });
   });
 
-  // Move the form submission event listener here to add it only once
   document.getElementById('setup-form').addEventListener('submit', function(event) {
     event.preventDefault();
-    const alliesTanks = Array.from(alliesTanksSelect.selectedOptions).map(option => option.value);
-    const axisTanks = Array.from(axisTanksSelect.selectedOptions).map(option => option.value);
+    const alliesTanksIds = Array.from(alliesTanksSelect.selectedOptions).map(option => option.value);
+    const axisTanksIds = Array.from(axisTanksSelect.selectedOptions).map(option => option.value);
     const selectedMapId = mapSelect.value;
 
     fetch('/api/simulation/start', {
@@ -71,21 +75,49 @@ document.addEventListener('DOMContentLoaded', function() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        alliesTanks,
-        axisTanks,
+        alliesTanks: alliesTanksIds,
+        axisTanks: axisTanksIds,
         map: selectedMapId,
       }),
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Simulation results:', data);
-        // Display simulation results to the user
-        // (Implement this based on your UI design)
+        // Add tanks to the scene
+        const alliesTanks = data.alliesTanks.map(tank => {
+          return addTankToScene(scene, 'allies', tank.x, tank.y, tank.z);
+        });
+
+        const axisTanks = data.axisTanks.map(tank => {
+          return addTankToScene(scene, 'axis', tank.x, tank.y, tank.z);
+        });
+
+        // Simulate tank movements (simplified example)
+        data.rounds.forEach(round => {
+          round.allies.forEach((action, index) => {
+            const tank = alliesTanks[index];
+            if (tank) {
+              if (action.destroyed) {
+                scene.remove(tank);
+              } else {
+                tank.position.set(action.x, action.y, action.z);
+              }
+            }
+          });
+          round.axis.forEach((action, index) => {
+            const tank = axisTanks[index];
+            if (tank) {
+              if (action.destroyed) {
+                scene.remove(tank);
+              } else {
+                tank.position.set(action.x, action.y, action.z);
+              }
+            }
+          });
+        });
       })
       .catch(error => {
         console.error('Error starting simulation:', error);
-        errorMessageElement.textContent = 'Error starting simulation. Please try again later.';
-        errorMessageElement.classList.remove('d-none');
+        showError('Error starting simulation. Please try again later.');
       });
   });
 });
