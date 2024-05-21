@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head') %>
+<body>
+<%- include('partials/_header', { session: locals.session }) %>
+<main role="main" class="container mt-4">
+  <div class="text-center">
+    <h1>Simulation Results</h1>
+  </div>
+  <div class="mt-4">
+    <h2>Summary</h2>
+    <p>Shots Fired: <%= simulationResults.shotsFired %></p>
+    <p>Allies Tanks Destroyed: <%= simulationResults.tanksDestroyed.allies %></p>
+    <p>Axis Tanks Destroyed: <%= simulationResults.tanksDestroyed.axis %></p>
+    <h3>Round-by-Round Details</h3>
+    <% simulationResults.rounds.forEach((round, index) => { %>
+      <h4>Round <%= index + 1 %></h4>
+      <h5>Allies Actions</h5>
+      <ul>
+        <% round.allies.forEach(action => { %>
+          <li>
+            Tank ID: <%= action.tankId %>, Destroyed: <%= action.destroyed %>, Position: (<%= action.x %>, <%= action.y %>, <%= action.z %>)
+          </li>
+        <% }) %>
+      </ul>
+      <h5>Axis Actions</h5>
+      <ul>
+        <% round.axis.forEach(action => { %>
+          <li>
+            Tank ID: <%= action.tankId %>, Destroyed: <%= action.destroyed %>, Position: (<%= action.x %>, <%= action.y %>, <%= action.z %>)
+          </li>
+        <% }) %>
+      </ul>
+    <% }) %>
+  </div>
+</main>
+<script src="/dist/bundle.js"></script>
+<%- include('partials/_footer') %>
+</body>
+</html>
