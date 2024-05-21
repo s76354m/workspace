@@ -66,9 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
-  mapSelect.addEventListener('change', function() {
-    const selectedMapId = mapSelect.value;
-
+  const fetchMapData = (selectedMapId) => {
     fetch(`/api/maps/${selectedMapId}`)
       .then(response => {
         if (!response.ok) {
@@ -94,6 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(error => {
         handleError(error, 'Error fetching map data. Please try again later.');
       });
+  };
+
+  mapSelect.addEventListener('change', function() {
+    const selectedMapId = mapSelect.value;
+    fetchMapData(selectedMapId);
   });
 
   document.getElementById('setup-form').addEventListener('submit', function(event) {
@@ -120,12 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Simulation start response:', data); // Detailed logging of the response
+        console.log('Simulation start response:', data);
 
         if (data.message === 'Simulation started successfully' && data.simulationId) {
-          console.log('Adding Allies tanks to scene:', data.alliesTanks);
+          console.log('Adding tanks to scene:', data.alliesTanks, data.axisTanks);
           const alliesTanks = addTanksToScene(scene, data.alliesTanks);
-          console.log('Adding Axis tanks to scene:', data.axisTanks);
           const axisTanks = addTanksToScene(scene, data.axisTanks);
           console.log('Updating tank positions with rounds data:', data.rounds);
           updateTankPositions(data.rounds, alliesTanks, axisTanks);

@@ -1,5 +1,6 @@
 const Tank = require('../models/Tank');
 const Map = require('../models/Map');
+const SimulationResult = require('../models/SimulationResult'); // Import SimulationResult model
 
 const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) => {
   tanks.forEach((tank, index) => {
@@ -47,9 +48,7 @@ const simulateBattle = async (alliesTanksIds, axisTanksIds, mapId) => {
         allies: 0,
         axis: 0,
       },
-      rounds: [],
-      alliesTanks: alliesTanks.map(tank => ({ _id: tank._id, x: 0, y: 0, z: 0 })),
-      axisTanks: axisTanks.map(tank => ({ _id: tank._id, x: 0, y: 0, z: 0 })),
+      rounds: []
     };
 
     // Simplified example of simulation logic

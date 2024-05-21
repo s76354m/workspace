@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error(`Error fetching map: ${error.message}`);
     console.error(error.stack);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    res.status(500).json({ message: 'Error fetching map', error: error.message });
   }
 });
 
