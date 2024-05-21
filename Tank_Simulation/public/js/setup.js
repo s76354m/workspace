@@ -1,4 +1,4 @@
-const { addTankToScene } = require('./threeInit.js');
+const { addTankToScene, addTanksToScene } = require('./threeInit.js');
 
 document.addEventListener('DOMContentLoaded', function() {
   const mapSelect = document.getElementById('map');
@@ -35,12 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const handleError = (error, message) => {
     console.error(message, error);
     showError(message);
-  };
-
-  const addTanksToScene = (tanksData) => {
-    return tanksData.map(tank => {
-      return addTankToScene(scene, tank.x, tank.y, tank.z);
-    });
   };
 
   const updateTankPositions = (rounds, alliesTanks, axisTanks) => {
@@ -130,14 +124,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (data.message === 'Simulation started successfully' && data.simulationId) {
           console.log('Adding Allies tanks to scene:', data.alliesTanks);
-          const alliesTanks = addTanksToScene(data.alliesTanks);
+          const alliesTanks = addTanksToScene(scene, data.alliesTanks);
           console.log('Adding Axis tanks to scene:', data.axisTanks);
-          const axisTanks = addTanksToScene(data.axisTanks);
+          const axisTanks = addTanksToScene(scene, data.axisTanks);
           console.log('Updating tank positions with rounds data:', data.rounds);
           updateTankPositions(data.rounds, alliesTanks, axisTanks);
           window.location.href = `/api/simulation/results/${data.simulationId}`;
         } else {
           showError('Error starting simulation. Please try again later.');
+          console.error('Invalid response from simulation start API:', data);
         }
       })
       .catch(error => {

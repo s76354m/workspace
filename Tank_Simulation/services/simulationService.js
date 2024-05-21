@@ -1,12 +1,6 @@
 const Tank = require('../models/Tank');
 const Map = require('../models/Map');
 
-const validateSimulationData = (tanks, map) => {
-  if (!tanks.length || !map) {
-    throw new Error('Invalid tank or map data');
-  }
-};
-
 const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) => {
   tanks.forEach((tank, index) => {
     const targetIndex = Math.floor(Math.random() * targetTanks.length);
@@ -28,7 +22,7 @@ const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) =
     tank.x += (side === 'allies' ? 1 : -1);
     tank.y += 0;
     tank.z += 0;
-    console.log(`Tank ${tank._id} moved to position (${tank.x}, ${tank.y}, ${tank.z})`);
+    console.log(`Tank ${tank._id} moved to position (${tank.x, tank.y, tank.z})`);
     roundStats[side].push({ tankId: tank._id, destroyed: false, x: tank.x, y: tank.y, z: tank.z });
   });
 };
@@ -41,9 +35,6 @@ const simulateBattle = async (alliesTanksIds, axisTanksIds, mapId) => {
     const alliesTanks = await Tank.find({ _id: { $in: alliesTanksIds } });
     const axisTanks = await Tank.find({ _id: { $in: axisTanksIds } });
     const map = await Map.findById(mapId).populate('terrains');
-
-    validateSimulationData(alliesTanks, map);
-    validateSimulationData(axisTanks, map);
 
     console.log('Fetched tank and map data successfully.');
     console.log('Initial Allies Tanks:', alliesTanks);

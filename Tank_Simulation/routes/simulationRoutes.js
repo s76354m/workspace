@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { startSimulation, getSimulationResults } = require('../controllers/simulationController');
+const { validateSimulationRequest } = require('../routes/middleware/validationMiddleware');
 
-router.post('/start', startSimulation);
-router.get('/results/:simulationId', getSimulationResults); // Restore the dynamic parameter
+// Apply validation middleware to the /start route
+router.post('/start', validateSimulationRequest, startSimulation);
+router.get('/results/:simulationId', getSimulationResults);
 
 module.exports = router;
