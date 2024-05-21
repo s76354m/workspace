@@ -9,7 +9,7 @@
           <a class="nav-link" href="/">Home</a>
         </li>
         <li class="nav-item">
-          <% if (session && session.userId) { %>
+          <% if (locals.session && locals.session.userId) { %>
           <a class="nav-link" href="/auth/logout">Logout</a>
           <% } else { %>
           <a class="nav-link" href="/auth/login">Login</a>

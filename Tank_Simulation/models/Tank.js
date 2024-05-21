@@ -1,49 +1,34 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const tankSchema = new mongoose.Schema({
+const tankSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   frontalArmor: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   sideArmor: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   mainGunSize: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   mainGunPenetration: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   }
 }, {
   timestamps: true
-});
-
-tankSchema.pre('save', function(next) {
-  console.log(`Saving tank: ${this.name}`);
-  next();
-});
-
-tankSchema.post('save', function(doc, next) {
-  console.log(`Tank ${doc.name} saved successfully`);
-  next();
-});
-
-tankSchema.post('save', function(error, doc, next) {
-  if (error.name === 'MongoError' && error.code === 11000) {
-    next(new Error('There was a duplicate key error'));
-  } else if (error) {
-    console.error(`Error saving the tank: ${error.message}`, error.stack);
-    next(error);
-  } else {
-    next();
-  }
 });
 
 const Tank = mongoose.model('Tank', tankSchema);

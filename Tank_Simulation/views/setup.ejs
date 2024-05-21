@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head') %>
+<body>
+<%- include('partials/_header', { session: locals.session }) %>
+<main role="main" class="container mt-4">
+  <div class="text-center">
+    <h1>Simulation Setup</h1>
+  </div>
+  <div id="error-message" class="alert alert-danger d-none"></div>
+  <form id="setup-form" action="/api/simulation/start" method="POST">
+    <div class="form-group">
+      <label for="allies-tanks">Select Allies Tanks:</label>
+      <select id="allies-tanks" name="alliesTanks" class="form-control" multiple>
+        <% tanks.forEach(tank => { %>
+          <option value="<%= tank._id %>"><%= tank.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="axis-tanks">Select Axis Tanks:</label>
+      <select id="axis-tanks" name="axisTanks" class="form-control" multiple>
+        <% tanks.forEach(tank => { %>
+          <option value="<%= tank._id %>"><%= tank.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Start Simulation</button>
+    <div class="form-group">
+      <label for="map">Select Map:</label>
+      <select id="map" name="map" class="form-control">
+        <% maps.forEach(map => { %>
+          <option value="<%= map._id %>"><%= map.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div id="map-container" class="map-container mt-4">
+      <!-- Map visualization and tank positioning will be handled here -->
+    </div>
+
+  </form>
+</main>
+<script src="/dist/bundle.js"></script>
+<%- include('partials/_footer') %>
+</body>
+</html>

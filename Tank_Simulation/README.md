@@ -1,18 +1,37 @@
-# Tank Simulation
+# Tank_Simulation
 
-Tank Simulation is a web-based application designed to offer an interactive and educational experience by simulating tank battles. It allows users to explore various tank models, their capabilities, and historical battle tactics across different terrains, making it a blend of entertainment and learning.
+Tank_Simulation is a web-based application that simulates tank battles. It combines educational purposes with entertainment by allowing users to set up and visualize historically accurate tank battles in a 3D environment. Users can learn about tank capabilities and historical battle tactics in a controlled, simulated environment.
 
 ## Overview
 
-The application leverages Node.js with Express for server management, MongoDB with Mongoose ORM for database operations, and EJS for server-side rendering. The frontend is crafted with Vanilla JavaScript and Bootstrap, ensuring a responsive and intuitive user interface. Tank movements and battles are visualized using a 3D animation engine, providing an immersive user experience.
+The Tank_Simulation project uses a modern web architecture with the following technologies:
+
+- **Backend:** Node.js with Express
+- **Database:** MongoDB with Mongoose ORM
+- **Frontend:** Vanilla JavaScript and Bootstrap
+- **View Rendering:** EJS
+- **3D Animation Engine:** THREE.js
+
+### Project Structure
+
+- **models/**: Mongoose models for User, Tank, Terrain, and Map
+- **routes/**: Express routes for authentication, tank management, terrain management, map management, setup, and simulation
+- **views/**: EJS templates for rendering HTML pages
+- **public/**: Static files including JavaScript, CSS, and bundled assets
+- **seeders/**: Scripts for seeding the database with initial data
+- **services/**: Business logic for the simulation
+- **controllers/**: Controllers for handling simulation logic
+- **.env**: Environment variables
+- **server.js**: Main entry point for the application
+- **webpack.config.js**: Webpack configuration for bundling frontend assets
 
 ## Features
 
-- **User Interaction**: Users can customize tank battles by selecting tank models, quantity, and battle terrains.
-- **Simulation Setup**: An easy-to-use setup page aids users in preparing for the simulation, allowing for a tailored battle scenario.
-- **Dynamic Simulation**: The application visualizes battles in 3D, considering realistic tank statistics and environmental conditions to determine outcomes.
-- **Result Analysis**: Post-battle, the application provides detailed statistics on the simulation, including shots fired, damage dealt, and tanks destroyed.
-- **Admin Tools**: A secure admin interface is available for managing tank models and their characteristics.
+- **User Interaction**: Users can select tanks for the Allies and Axis, choose a map, and position tanks on the map.
+- **Simulation Setup Page**: A form to select tank types and quantities, choose a map, and position tanks.
+- **Simulation Execution**: The simulation runs autonomously with 3D animation showing tank movements, engagements, and outcomes.
+- **Result Analysis**: A summary of the battle with statistics such as shots fired, tank damage, and tanks knocked out.
+- **Admin Tool**: Secure interface for administrators to add new tank types and adjust their statistics.
 
 ## Getting started
 
@@ -20,16 +39,31 @@ The application leverages Node.js with Express for server management, MongoDB wi
 
 - Node.js
 - MongoDB
-- A modern web browser
 
 ### Quickstart
 
-1. Clone the repository to your local machine.
-2. Run `npm install` to install dependencies.
-3. Set up your `.env` file based on `.env.example`.
-4. Use `npm start` to launch the application.
-5. Access the application at `http://localhost:3000` (or your specified port) in your web browser.
+1. Clone the repository:
+   ```sh
+   git clone <repository_url>
+   cd Tank_Simulation
+   ```
+2. Install the dependencies:
+   ```sh
+   npm install
+   ```
+3. Set up the environment variables:
+   - Copy the `.env.example` to `.env`
+   - Fill in the required values in the `.env` file
+4. Seed the database with initial data:
+   ```sh
+   node seeders/tankSeeder.js
+   node seeders/mapTerrainSeeder.js
+   ```
+5. Start the application:
+   ```sh
+   npm start
+   ```
 
 ### License
 
-Copyright (c) 2024.
+The project is proprietary (not open source). Copyright (c) 2024.

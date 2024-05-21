@@ -4,13 +4,11 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const authRoutes = require("./routes/authRoutes");
-const tankRoutes = require('./routes/tankRoutes');
-const simulationRoutes = require('./routes/simulationRoutes');
-
-if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET) {
-  console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
-  process.exit(-1);
-}
+const tankRoutes = require("./routes/tankRoutes"); // Import tank routes
+const terrainRoutes = require("./routes/terrainRoutes"); // Import terrain routes
+const mapRoutes = require("./routes/mapRoutes"); // Import map routes
+const setupRoutes = require("./routes/setupRoutes"); // Import setup routes
+const simulationRoutes = require('./routes/simulationRoutes'); // Import simulation routes
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,14 +16,6 @@ const port = process.env.PORT || 3000;
 // Middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Middleware to set MIME type for JavaScript modules
-app.use((req, res, next) => {
-  if (req.path.endsWith('.js')) {
-    res.type('application/javascript');
-  }
-  next();
-});
 
 // Setting the templating engine to EJS
 app.set("view engine", "ejs");
@@ -55,36 +45,29 @@ app.use(
   }),
 );
 
-app.on("error", (error) => {
-  console.error(`Server error: ${error.message}`);
-  console.error(error.stack);
-});
-
-// Logging session creation and destruction
+// Middleware to make session available to EJS templates
 app.use((req, res, next) => {
-  const sess = req.session;
-  // Make session available to all views
-  res.locals.session = sess;
-  if (!sess.views) {
-    sess.views = 1;
-    console.log("Session created at: ", new Date().toISOString());
-  } else {
-    sess.views++;
-    console.log(
-      `Session accessed again at: ${new Date().toISOString()}, Views: ${sess.views}, User ID: ${sess.userId || '(unauthenticated)'}`,
-    );
-  }
+  res.locals.session = req.session;
   next();
 });
 
 // Authentication Routes
-app.use('/auth', authRoutes);
+app.use(authRoutes);
 
 // Tank Management Routes
-app.use('/api', tankRoutes);
+app.use('/api/tanks', tankRoutes); // Use tank routes
 
-// Simulation Setup Routes
-app.use('/simulation', simulationRoutes);
+// Terrain Management Routes
+app.use('/api/terrains', terrainRoutes); // Use terrain routes
+
+// Map Management Routes
+app.use('/api/maps', mapRoutes); // Use map routes
+
+// Setup Page Route
+app.use('/setup', setupRoutes); // Use setup routes
+
+// Simulation Routes
+app.use('/api/simulation', simulationRoutes); // Use simulation routes
 
 // Root path response
 app.get("/", (req, res) => {

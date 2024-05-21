@@ -1,41 +1,25 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const terrainSchema = new mongoose.Schema({
+const terrainSchema = new Schema({
   type: {
     type: String,
     required: true,
-    unique: true
+    trim: true,
+    enum: ['forest', 'hill', 'city', 'plain']
   },
-  movementPenalty: {
+  movementEffect: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   combatEffect: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   }
-});
-
-terrainSchema.pre('save', function(next) {
-  console.log(`Saving terrain: ${this.type}`);
-  next();
-});
-
-terrainSchema.post('save', function(doc, next) {
-  console.log(`Terrain ${doc.type} saved successfully`);
-  next();
-});
-
-terrainSchema.post('save', function(error, doc, next) {
-  if (error.name === 'MongoError' && error.code === 11000) {
-    console.error(`There was a duplicate key error for terrain: ${doc.type}`, error.stack);
-    next(new Error('There was a duplicate key error'));
-  } else if (error) {
-    console.error(`Error saving the terrain: ${error.message}`, error.stack);
-    next(error);
-  } else {
-    next();
-  }
+}, {
+  timestamps: true
 });
 
 const Terrain = mongoose.model('Terrain', terrainSchema);
