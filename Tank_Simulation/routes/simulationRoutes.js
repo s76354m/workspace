@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { startSimulation, getSimulationResults } = require('../controllers/simulationController');
-const { validateSimulationRequest } = require('../routes/middleware/validationMiddleware');
+const { startSimulation } = require('../controllers/simulationController');
 
-// Apply validation middleware to the /start route
-router.post('/start', validateSimulationRequest, startSimulation);
-router.get('/results/:simulationId', getSimulationResults);
+router.post('/start', startSimulation);
 
 module.exports = router;

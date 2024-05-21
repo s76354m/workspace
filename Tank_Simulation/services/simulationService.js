@@ -1,6 +1,11 @@
 const Tank = require('../models/Tank');
 const Map = require('../models/Map');
-const SimulationResult = require('../models/SimulationResult'); // Import SimulationResult model
+
+const validateSimulationData = (tanks, map) => {
+  if (!tanks.length || !map) {
+    throw new Error('Invalid tank or map data');
+  }
+};
 
 const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) => {
   tanks.forEach((tank, index) => {
@@ -10,12 +15,10 @@ const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) =
     target.frontalArmor -= damage;
     battleStats.shotsFired++;
     if (target.frontalArmor <= 0) {
-      console.log(`Tank ${target._id} destroyed by ${side} tank ${tank._id}`);
       roundStats[side === 'allies' ? 'axis' : 'allies'].push({ tankId: target._id, destroyed: true, x: target.x, y: target.y, z: target.z });
       battleStats.tanksDestroyed[side === 'allies' ? 'axis' : 'allies']++;
       targetTanks.splice(targetIndex, 1);
     } else {
-      console.log(`Tank ${target._id} hit by ${side} tank ${tank._id}, remaining armor: ${target.frontalArmor}`);
       roundStats[side === 'allies' ? 'axis' : 'allies'].push({ tankId: target._id, destroyed: false, x: target.x, y: target.y, z: target.z });
     }
 
@@ -23,7 +26,6 @@ const processTankActions = (tanks, targetTanks, battleStats, roundStats, side) =
     tank.x += (side === 'allies' ? 1 : -1);
     tank.y += 0;
     tank.z += 0;
-    console.log(`Tank ${tank._id} moved to position (${tank.x, tank.y, tank.z})`);
     roundStats[side].push({ tankId: tank._id, destroyed: false, x: tank.x, y: tank.y, z: tank.z });
   });
 };
@@ -37,9 +39,10 @@ const simulateBattle = async (alliesTanksIds, axisTanksIds, mapId) => {
     const axisTanks = await Tank.find({ _id: { $in: axisTanksIds } });
     const map = await Map.findById(mapId).populate('terrains');
 
+    validateSimulationData(alliesTanks, map);
+    validateSimulationData(axisTanks, map);
+
     console.log('Fetched tank and map data successfully.');
-    console.log('Initial Allies Tanks:', alliesTanks);
-    console.log('Initial Axis Tanks:', axisTanks);
 
     // Initialize battle statistics
     const battleStats = {
@@ -48,27 +51,25 @@ const simulateBattle = async (alliesTanksIds, axisTanksIds, mapId) => {
         allies: 0,
         axis: 0,
       },
-      rounds: []
+      rounds: [],
+      alliesTanks: alliesTanks.map(tank => ({ _id: tank._id, x: 0, y: 0, z: 0 })),
+      axisTanks: axisTanks.map(tank => ({ _id: tank._id, x: 0, y: 0, z: 0 })),
     };
 
     // Simplified example of simulation logic
     const simulateRound = (allies, axis) => {
       const roundStats = { allies: [], axis: [] };
-      console.log('Simulating round...');
       processTankActions(allies, axis, battleStats, roundStats, 'allies');
       processTankActions(axis, allies, battleStats, roundStats, 'axis');
-      console.log('Round simulation completed.');
       return roundStats;
     };
 
     while (alliesTanks.length > 0 && axisTanks.length > 0) {
       const roundStats = simulateRound(alliesTanks, axisTanks);
       battleStats.rounds.push(roundStats);
-      console.log('Round stats:', roundStats);
     }
 
     console.log('Battle simulation completed successfully.');
-    console.log('Final Battle Stats:', battleStats);
     return battleStats;
   } catch (error) {
     console.error(`Simulation error: ${error.message}`);
