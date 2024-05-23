@@ -1,4 +1,6 @@
-const { addTerrainToScene, addTankToScene } = require('./threeInit.js');
+const { initThreeScene, addTerrainToScene, updateTankPosition, addTankToScene } = require('./threeInit.js');
+const { getTankModel } = require('./tankModels.js');
+const { startSimulation } = require('./simulationVisualization.js');
 
 document.addEventListener('DOMContentLoaded', function() {
   const mapSelect = document.getElementById('map');
@@ -7,27 +9,59 @@ document.addEventListener('DOMContentLoaded', function() {
   const alliesTanksSelect = document.getElementById('allies-tanks');
   const axisTanksSelect = document.getElementById('axis-tanks');
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, mapContainer.clientWidth / mapContainer.clientHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer();
+  const { scene } = initThreeScene(mapContainer);
 
-  renderer.setSize(mapContainer.clientWidth, mapContainer.clientHeight);
-  mapContainer.appendChild(renderer.domElement);
+  function setupScene(map, data) {
+    // Clear the Three.js scene
+    while (scene.children.length > 0) {
+      scene.remove(scene.children[0]);
+    }
 
-  camera.position.z = 10;
+    // Add terrains to the scene
+    const terrainCoordinates = {
+      'forest': { x: -2, y: 0, z: 0 },
+      'hill': { x: 2, y: 0, z: 0 },
+      'city': { x: 0, y: 0, z: 2 },
+      'plain': { x: 0, y: 0, z: -2 }
+    };
 
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    map.terrains.forEach(terrain => {
+      if (!terrain.type || typeof terrain.coordinates === 'undefined') {
+        console.error('Terrain data missing type or coordinates property');
+        return;
+      }
+      const coords = terrainCoordinates[terrain.type] || { x: 0, y: 0, z: 0 };
+      addTerrainToScene(scene, terrain.type, coords.x, coords.y, coords.z);
+    });
+
+    // Add tanks to the scene
+    const tankCoordinates = {
+      'allies': { x: -1, y: 0, z: 0 },
+      'axis': { x: 1, y: 0, z: 0 }
+    };
+
+    data.alliesTanks.forEach((tankId, index) => {
+      getTankModel(tankId, (error, tankModel) => {
+        if (error) {
+          console.error('Error loading tank model:', error);
+          return;
+        }
+        const coords = { x: tankCoordinates.allies.x + index, y: tankCoordinates.allies.y, z: tankCoordinates.allies.z };
+        addTankToScene(scene, tankModel, coords.x, coords.y, coords.z);
+      });
+    });
+
+    data.axisTanks.forEach((tankId, index) => {
+      getTankModel(tankId, (error, tankModel) => {
+        if (error) {
+          console.error('Error loading tank model:', error);
+          return;
+        }
+        const coords = { x: tankCoordinates.axis.x + index, y: tankCoordinates.axis.y, z: tankCoordinates.axis.z };
+        addTankToScene(scene, tankModel, coords.x, coords.y, coords.z);
+      });
+    });
   }
-  animate();
-
-  console.log('Three.js scene initialized successfully');
-
-  const showError = (message) => {
-    errorMessageElement.textContent = message;
-    errorMessageElement.classList.remove('d-none');
-  };
 
   mapSelect.addEventListener('change', function() {
     const selectedMapId = mapSelect.value;
@@ -43,30 +77,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!map || !Array.isArray(map.terrains)) {
           throw new Error('Invalid map data received from the server');
         }
-
-        // Log terrain data for debugging
-        console.log('Terrain data received:', map.terrains);
-
-        // Clear the Three.js scene
-        while (scene.children.length > 0) {
-          scene.remove(scene.children[0]);
-        }
-
-        map.terrains.forEach(terrain => {
-          addTerrainToScene(scene, terrain.type, terrain.x, terrain.y, terrain.z);
-        });
+        setupScene(map, { alliesTanks: [], axisTanks: [] });
       })
       .catch(error => {
         console.error('Error fetching map data:', error);
         console.error(error.stack);
-        showError('Error fetching map data. Please try again later.');
+        errorMessageElement.textContent = 'Error fetching map data. Please try again later.';
+        errorMessageElement.classList.remove('d-none');
       });
   });
 
   document.getElementById('setup-form').addEventListener('submit', function(event) {
     event.preventDefault();
-    const alliesTanksIds = Array.from(alliesTanksSelect.selectedOptions).map(option => option.value);
-    const axisTanksIds = Array.from(axisTanksSelect.selectedOptions).map(option => option.value);
+    const alliesTanks = Array.from(alliesTanksSelect.selectedOptions).map(option => option.value);
+    const axisTanks = Array.from(axisTanksSelect.selectedOptions).map(option => option.value);
     const selectedMapId = mapSelect.value;
 
     fetch('/api/simulation/start', {
@@ -75,49 +99,45 @@ document.addEventListener('DOMContentLoaded', function() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        alliesTanks: alliesTanksIds,
-        axisTanks: axisTanksIds,
+        alliesTanks,
+        axisTanks,
         map: selectedMapId,
       }),
     })
       .then(response => response.json())
       .then(data => {
-        // Add tanks to the scene
-        const alliesTanks = data.alliesTanks.map(tank => {
-          return addTankToScene(scene, 'allies', tank.x, tank.y, tank.z);
-        });
+        console.log('Simulation results:', data);
+        setupScene(data.map, data);
 
-        const axisTanks = data.axisTanks.map(tank => {
-          return addTankToScene(scene, 'axis', tank.x, tank.y, tank.z);
-        });
+        // Start simulation visualization
+        const simulationContainer = document.getElementById('simulation-container');
+        startSimulation(simulationContainer, alliesTanks, axisTanks);
 
-        // Simulate tank movements (simplified example)
-        data.rounds.forEach(round => {
-          round.allies.forEach((action, index) => {
-            const tank = alliesTanks[index];
-            if (tank) {
-              if (action.destroyed) {
-                scene.remove(tank);
-              } else {
-                tank.position.set(action.x, action.y, action.z);
+        // Update tank positions based on simulation results
+        data.rounds.forEach((round, roundIndex) => {
+          setTimeout(() => {
+            round.allies.forEach((tank, index) => {
+              const tankModel = scene.getObjectByName(tank.tankId);
+              if (tankModel) {
+                const coords = { x: tankCoordinates.allies.x + index, y: tankCoordinates.allies.y, z: tankCoordinates.allies.z + roundIndex };
+                updateTankPosition(tankModel, coords.x, coords.y, coords.z);
               }
-            }
-          });
-          round.axis.forEach((action, index) => {
-            const tank = axisTanks[index];
-            if (tank) {
-              if (action.destroyed) {
-                scene.remove(tank);
-              } else {
-                tank.position.set(action.x, action.y, action.z);
+            });
+
+            round.axis.forEach((tank, index) => {
+              const tankModel = scene.getObjectByName(tank.tankId);
+              if (tankModel) {
+                const coords = { x: tankCoordinates.axis.x + index, y: tankCoordinates.axis.y, z: tankCoordinates.axis.z + roundIndex };
+                updateTankPosition(tankModel, coords.x, coords.y, coords.z);
               }
-            }
-          });
+            });
+          }, roundIndex * 1000); // Adjust the timing as needed
         });
       })
       .catch(error => {
         console.error('Error starting simulation:', error);
-        showError('Error starting simulation. Please try again later.');
+        errorMessageElement.textContent = 'Error starting simulation. Please try again later.';
+        errorMessageElement.classList.remove('d-none');
       });
   });
 });

@@ -9,6 +9,16 @@ router.get('/', async (req, res) => {
   try {
     const tanks = await Tank.find({});
     const maps = await Map.find({}).populate('terrains');
+
+    // Ensure terrain data includes type and coordinates
+    maps.forEach(map => {
+      map.terrains.forEach(terrain => {
+        if (!terrain.type || typeof terrain.coordinates === 'undefined') {
+          console.error('Terrain data missing type or coordinates property');
+        }
+      });
+    });
+
     res.render('setup', { tanks, maps });
   } catch (error) {
     console.error(`Error fetching setup data: ${error.message}`);

@@ -17,6 +17,14 @@ const terrainSchema = new Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  coordinates: {
+    type: {
+      x: Number,
+      y: Number,
+      z: Number
+    },
+    required: true
   }
 }, {
   timestamps: true
