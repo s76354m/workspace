@@ -121,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(response => response.json())
       .then(data => {
         console.log('Simulation started:', data);
-        // Redirect to the simulation view or handle the response as needed
+        // Redirect to the simulation results page
+        window.location.href = '/simulation-results';
       })
       .catch(error => {
         console.error('Error starting simulation:', error.message);
