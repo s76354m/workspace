@@ -30,14 +30,53 @@ const simulateBattle = async (mapId, alliesTanks, axisTanks) => {
 
     return outcomes;
   } catch (error) {
-    console.error('Error in simulateBattle:', error.message);
+    console.error('Error in simulateBattle at:', { mapId, alliesTanks, axisTanks });
+    console.error('Error details:', error.message);
     console.error(error.stack);
     throw error;
   }
 };
 
+const getTerrainEffects = (map, tank) => {
+  if (!tank || typeof tank.x === 'undefined' || typeof tank.y === 'undefined') {
+    console.error('Invalid tank object:', tank);
+    return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if tank is invalid
+  }
+  if (!map || !map.terrains) {
+    console.error('Invalid map object:', map);
+    return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if map is invalid
+  }
+
+  const terrain = map.terrains.find(t => t.coordinates[0] === tank.x && t.coordinates[1] === tank.y);
+  if (terrain) {
+    return { movementEffect: terrain.movementEffect, combatEffect: terrain.combatEffect };
+  }
+  return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if no terrain found
+};
+
+const calculateAdjustedAttributes = (tank, tankDetails, map) => {
+  const tankInfo = tankDetails[tank.tankId];
+  if (!tankInfo) {
+    console.error('Tank details not found for tankId:', tank.tankId);
+    return { ...tank, outcome: 'unknown', adjustedMovement: 0, adjustedCombat: 0, x: tank.x, y: tank.y };
+  }
+
+  const terrainEffects = getTerrainEffects(map, tank);
+
+  const adjustedMovement = tankInfo.movement * terrainEffects.movementEffect;
+  const adjustedCombat = tankInfo.combat * terrainEffects.combatEffect;
+
+  return {
+    ...tank,
+    outcome: 'survived',
+    adjustedMovement,
+    adjustedCombat,
+    x: tank.x,
+    y: tank.y
+  };
+};
+
 const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
-  // Placeholder for battle logic
   const outcomes = {
     shotsFired: 0,
     allies: {
@@ -52,24 +91,20 @@ const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
     },
   };
 
-  // Simulate each tank's action
   alliesTanks.forEach(tank => {
-    const tankInfo = tankDetails[tank.tankId];
-    // Add placeholder outcome
-    outcomes.allies.tanks.push({ ...tank, outcome: 'survived' });
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    outcomes.allies.tanks.push(adjustedTank);
   });
 
   axisTanks.forEach(tank => {
-    const tankInfo = tankDetails[tank.tankId];
-    // Add placeholder outcome
-    outcomes.axis.tanks.push({ ...tank, outcome: 'destroyed' });
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    adjustedTank.outcome = 'destroyed'; // Assuming all axis tanks are destroyed
+    outcomes.axis.tanks.push(adjustedTank);
   });
 
-  // Update placeholder statistics
   outcomes.shotsFired = alliesTanks.length + axisTanks.length;
-  outcomes.allies.damageDealt = alliesTanks.length * 10;
-  outcomes.allies.tanksDestroyed = 0;
-  outcomes.axis.damageDealt = axisTanks.length * 10;
+  outcomes.allies.damageDealt = outcomes.allies.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
+  outcomes.axis.damageDealt = outcomes.axis.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
   outcomes.axis.tanksDestroyed = axisTanks.length;
 
   return outcomes;

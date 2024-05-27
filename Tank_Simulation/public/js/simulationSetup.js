@@ -1,24 +1,31 @@
+import { createTankPositionDiv } from './tankPositionHelper.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   const mapSelect = document.getElementById('map-selection');
   const simulationForm = document.getElementById('simulation-setup-form');
   const alliesTankSelect = document.getElementById('allies-tank');
   const axisTankSelect = document.getElementById('axis-tank');
   const tankPositioningContainer = document.getElementById('tank-positioning');
+  const canvas = document.getElementById('battlefield-canvas');
+  const gridSize = 20; // Size of each grid cell
+  let selectedTankSide = null;
+  let selectedTankId = null;
+
+  // Helper function to append tank options to a select element
+  const appendTankOptions = (tank, selectElement) => {
+    const option = document.createElement('option');
+    option.value = tank._id;
+    option.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
+    selectElement.appendChild(option);
+  };
 
   // Fetch tanks and populate the tank selection dropdowns
   fetch('/api/tanks')
     .then(response => response.json())
     .then(tanks => {
       tanks.forEach(tank => {
-        const alliesOption = document.createElement('option');
-        alliesOption.value = tank._id;
-        alliesOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        alliesTankSelect.appendChild(alliesOption);
-
-        const axisOption = document.createElement('option');
-        axisOption.value = tank._id;
-        axisOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        axisTankSelect.appendChild(axisOption);
+        appendTankOptions(tank, alliesTankSelect);
+        appendTankOptions(tank, axisTankSelect);
       });
     })
     .catch(error => {
@@ -42,47 +49,35 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(error.stack);
     });
 
-  // Function to add tank position inputs
-  const addTankPositionInputs = (container, side, tankId, quantity) => {
-    for (let i = 0; i < quantity; i++) {
-      const tankPositionDiv = document.createElement('div');
-      tankPositionDiv.className = 'tank-position';
-
-      const label = document.createElement('label');
-      label.textContent = `Position for ${side === 'allies' ? 'Allies' : 'Axis'} Tank (ID: ${tankId}):`;
-      tankPositionDiv.appendChild(label);
-
-      const xInput = document.createElement('input');
-      xInput.type = 'number';
-      xInput.name = `${side}-tank-${tankId}-x`;
-      xInput.placeholder = 'X Coordinate';
-      tankPositionDiv.appendChild(xInput);
-
-      const yInput = document.createElement('input');
-      yInput.type = 'number';
-      yInput.name = `${side}-tank-${tankId}-y`;
-      yInput.placeholder = 'Y Coordinate';
-      tankPositionDiv.appendChild(yInput);
-
-      container.appendChild(tankPositionDiv);
-    }
-  };
-
   // General function to handle adding tank positions
-  const handleAddTank = (tankSelect, quantityInput, side) => {
-    const selectedTankId = tankSelect.value;
-    const quantity = parseInt(quantityInput.value, 10);
-    addTankPositionInputs(tankPositioningContainer, side, selectedTankId, quantity);
+  const handleAddTankClick = (side, tankSelect) => {
+    selectedTankSide = side;
+    selectedTankId = tankSelect.value;
   };
 
   // Event listener for adding Allies tank positions
-  document.getElementById('add-allies-tank').addEventListener('click', () => {
-    handleAddTank(alliesTankSelect, document.getElementById('allies-quantity'), 'allies');
-  });
+  document.getElementById('add-allies-tank').addEventListener('click', () => handleAddTankClick('allies', alliesTankSelect));
 
   // Event listener for adding Axis tank positions
-  document.getElementById('add-axis-tank').addEventListener('click', () => {
-    handleAddTank(axisTankSelect, document.getElementById('axis-quantity'), 'axis');
+  document.getElementById('add-axis-tank').addEventListener('click', () => handleAddTankClick('axis', axisTankSelect));
+
+  // Event listener to place tanks on the grid
+  canvas.addEventListener('click', (event) => {
+    if (!selectedTankSide || !selectedTankId) {
+      alert('Please select a tank and side before placing it on the grid.');
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((event.clientX - rect.left) / gridSize);
+    const y = Math.floor((event.clientY - rect.top) / gridSize);
+
+    const tankPositionDiv = createTankPositionDiv(selectedTankSide, selectedTankId, x, y);
+    tankPositioningContainer.appendChild(tankPositionDiv);
+
+    // Reset selection
+    selectedTankSide = null;
+    selectedTankId = null;
   });
 
   // Event listener for form submission
@@ -95,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tank-position').forEach(positionDiv => {
       const inputs = positionDiv.querySelectorAll('input');
       const tankId = inputs[0].name.split('-')[2];
-      const x = inputs[0].value;
-      const y = inputs[1].value;
+      const x = parseInt(inputs[0].value, 10);
+      const y = parseInt(inputs[1].value, 10);
 
       if (inputs[0].name.startsWith('allies')) {
         alliesTanks.push({ tankId, x, y });
@@ -127,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(error => {
         console.error('Error starting simulation:', error.message);
         console.error(error.stack);
+        alert('Failed to start simulation. Please try again later.');
       });
   });
 });
