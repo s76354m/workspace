@@ -7,8 +7,6 @@ const authRoutes = require("./routes/authRoutes");
 const tankRoutes = require("./routes/tankRoutes"); // Import tank routes
 const terrainRoutes = require("./routes/terrainRoutes"); // Import terrain routes
 const mapRoutes = require("./routes/mapRoutes"); // Import map routes
-const setupRoutes = require("./routes/setupRoutes"); // Import setup routes
-const simulationRoutes = require('./routes/simulationRoutes'); // Import simulation routes
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -45,7 +43,7 @@ app.use(
   }),
 );
 
-// Middleware to make session available to EJS templates
+// Middleware to make session data available to all EJS templates
 app.use((req, res, next) => {
   res.locals.session = req.session;
   next();
@@ -63,11 +61,10 @@ app.use('/api/terrains', terrainRoutes); // Use terrain routes
 // Map Management Routes
 app.use('/api/maps', mapRoutes); // Use map routes
 
-// Setup Page Route
-app.use('/setup', setupRoutes); // Use setup routes
-
-// Simulation Routes
-app.use('/api/simulation', simulationRoutes); // Use simulation routes
+// Simulation Setup Page Route
+app.get("/simulation-setup", (req, res) => {
+  res.render("simulationSetup");
+});
 
 // Root path response
 app.get("/", (req, res) => {
