@@ -1,5 +1,5 @@
-const Tank = require('../models/Tank');
-const Map = require('../models/Map');
+import Tank from '../models/Tank.js';
+import Map from '../models/Map.js';
 
 const simulateBattle = async (mapId, alliesTanks, axisTanks) => {
   try {
@@ -55,14 +55,16 @@ const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
   // Simulate each tank's action
   alliesTanks.forEach(tank => {
     const tankInfo = tankDetails[tank.tankId];
+    const terrain = map.terrains.find(t => t.x === tank.x && t.y === tank.y);
     // Add placeholder outcome
-    outcomes.allies.tanks.push({ ...tank, outcome: 'survived' });
+    outcomes.allies.tanks.push({ ...tank, outcome: 'survived', terrain: terrain.type });
   });
 
   axisTanks.forEach(tank => {
     const tankInfo = tankDetails[tank.tankId];
+    const terrain = map.terrains.find(t => t.x === tank.x && t.y === tank.y);
     // Add placeholder outcome
-    outcomes.axis.tanks.push({ ...tank, outcome: 'destroyed' });
+    outcomes.axis.tanks.push({ ...tank, outcome: 'destroyed', terrain: terrain.type });
   });
 
   // Update placeholder statistics
@@ -75,6 +77,6 @@ const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
   return outcomes;
 };
 
-module.exports = {
+export {
   simulateBattle,
 };

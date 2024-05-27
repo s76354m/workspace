@@ -1,64 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('partials/_head.ejs') %>
+
   <body>
-<%- include('partials/_header.ejs') %>
-    <main role="main" class="container mt-4">
-      <div class="text-center">
-        <h1>Simulation Setup</h1>
-      </div>
-      <form id="simulation-setup-form" method="POST" action="/api/start-simulation">
-        <div class="row">
-          <div class="col-md-6">
-            <h3>Allies</h3>
-            <div id="allies-tank-selection">
-              <!-- Tank selection for Allies will be dynamically populated here -->
-              <div class="form-group">
-                <label for="allies-tank">Select Tank:</label>
-                <select id="allies-tank" class="form-control">
-                  <!-- Tank options will be dynamically populated here -->
-                </select>
+    <%- include('partials/_header.ejs') %>
+      <main role="main" class="container mt-4">
+        <div class="text-center">
+          <h1>Simulation Setup</h1>
+        </div>
+        <form id="simulation-setup-form" method="POST" action="/api/start-simulation">
+          <div class="row">
+            <div class="col-md-6">
+              <h3>Allies</h3>
+              <div id="allies-tank-selection">
+                <!-- Tank selection for Allies will be dynamically populated here -->
+                <div class="form-group">
+                  <label for="allies-tank">Select Tank:</label>
+                  <select id="allies-tank" class="form-control">
+                    <!-- Tank options will be dynamically populated here -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="allies-quantity">Quantity:</label>
+                  <input type="number" id="allies-quantity" class="form-control" min="1" value="1">
+                </div>
+                <button type="button" id="add-allies-tank" class="btn btn-secondary mt-2">Add Tank</button>
               </div>
-              <div class="form-group">
-                <label for="allies-quantity">Quantity:</label>
-                <input type="number" id="allies-quantity" class="form-control" min="1" value="1">
+            </div>
+            <div class="col-md-6">
+              <h3>Axis</h3>
+              <div id="axis-tank-selection">
+                <!-- Tank selection for Axis will be dynamically populated here -->
+                <div class="form-group">
+                  <label for="axis-tank">Select Tank:</label>
+                  <select id="axis-tank" class="form-control">
+                    <!-- Tank options will be dynamically populated here -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="axis-quantity">Quantity:</label>
+                  <input type="number" id="axis-quantity" class="form-control" min="1" value="1">
+                </div>
+                <button type="button" id="add-axis-tank" class="btn btn-secondary mt-2">Add Tank</button>
               </div>
-              <button type="button" id="add-allies-tank" class="btn btn-secondary mt-2">Add Tank</button>
             </div>
           </div>
-          <div class="col-md-6">
-            <h3>Axis</h3>
-            <div id="axis-tank-selection">
-              <!-- Tank selection for Axis will be dynamically populated here -->
-              <div class="form-group">
-                <label for="axis-tank">Select Tank:</label>
-                <select id="axis-tank" class="form-control">
-                  <!-- Tank options will be dynamically populated here -->
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="axis-quantity">Quantity:</label>
-                <input type="number" id="axis-quantity" class="form-control" min="1" value="1">
-              </div>
-              <button type="button" id="add-axis-tank" class="btn btn-secondary mt-2">Add Tank</button>
+          <div class="form-group mt-4">
+            <label for="map-selection">Select Map:</label>
+            <select id="map-selection" name="map" class="form-control">
+              <!-- Map options will be dynamically populated here -->
+            </select>
+            <button type="submit" id="start-simulation" class="btn btn-primary mt-4">Start Simulation</button>
+          </div>
+          <div class="form-group mt-4">
+            <label for="tank-positioning">Position Tanks:</label>
+            <div id="tank-positioning">
+              <canvas id="battlefield-canvas" width="800" height="600"></canvas>
             </div>
           </div>
-        </div>
-        <div class="form-group mt-4">
-          <label for="map-selection">Select Map:</label>
-          <select id="map-selection" name="map" class="form-control">
-            <!-- Map options will be dynamically populated here -->
-          </select>
-        </div>
-        <div class="form-group mt-4">
-          <label for="tank-positioning">Position Tanks:</label>
-          <div id="tank-positioning">
-            <!-- Tank positioning interface will be dynamically populated here -->
-          </div>
-        </div>
-        <button type="submit" id="start-simulation" class="btn btn-primary mt-4">Start Simulation</button>
-      </form>
-    </main>
-<%- include('partials/_footer.ejs') %>
-  <script src="/js/simulationSetup.js"></script>
+        </form>
+      </main>
+      <%- include('partials/_footer.ejs') %>
+        <script src="/js/mapUtils.js"></script>
+        <script src="/js/tankUtils.js"></script>
+        <script src="/js/mapService.js"></script>
+        <script src="/js/gridSetup.js"></script>
+        <script src="/js/simulationSetup.js"></script>
+
 </html>

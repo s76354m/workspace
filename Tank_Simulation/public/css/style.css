@@ -1,1 +1,19 @@
 /* Placeholder for custom styles */
+
+#battlefield-canvas {
+  border: 1px solid #000;
+  display: block;
+  margin: 0 auto;
+}
+
+.tank-icon-allies {
+  background-color: blue;
+  width: 20px;
+  height: 20px;
+}
+
+.tank-icon-axis {
+  background-color: red;
+  width: 20px;
+  height: 20px;
+}

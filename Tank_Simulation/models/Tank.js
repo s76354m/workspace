@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
 const tankSchema = new Schema({
@@ -33,4 +34,4 @@ const tankSchema = new Schema({
 
 const Tank = mongoose.model('Tank', tankSchema);
 
-module.exports = Tank;
+export default Tank;

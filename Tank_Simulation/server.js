@@ -1,13 +1,13 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-const express = require("express");
-const session = require("express-session");
-const MongoStore = require('connect-mongo');
-const authRoutes = require("./routes/authRoutes");
-const tankRoutes = require("./routes/tankRoutes"); // Import tank routes
-const terrainRoutes = require("./routes/terrainRoutes"); // Import terrain routes
-const mapRoutes = require("./routes/mapRoutes"); // Import map routes
-const simulationRoutes = require("./routes/simulationRoutes"); // Import simulation routes
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import express from 'express';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import authRoutes from './routes/authRoutes.js';
+import tankRoutes from './routes/tankRoutes.js'; // Import tank routes
+import terrainRoutes from './routes/terrainRoutes.js'; // Import terrain routes
+import mapRoutes from './routes/mapRoutes.js'; // Import map routes
+import simulationRoutes from './routes/simulationRoutes.js'; // Import simulation routes
 
 const app = express();
 const port = process.env.PORT || 3000;
