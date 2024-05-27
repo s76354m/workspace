@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const mapSchema = new Schema({
@@ -18,4 +18,4 @@ const mapSchema = new Schema({
 
 const Map = mongoose.model('Map', mapSchema);
 
-export default Map;
+module.exports = Map;

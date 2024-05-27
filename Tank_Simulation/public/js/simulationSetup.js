@@ -1,6 +1,3 @@
-import { drawGrid, renderTerrain } from './mapUtils.js';
-import { drawTankIcon } from './tankUtils.js';
-
 document.addEventListener('DOMContentLoaded', () => {
   const mapSelect = document.getElementById('map-selection');
   const simulationForm = document.getElementById('simulation-setup-form');
@@ -8,11 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const axisTankSelect = document.getElementById('axis-tank');
   const tankPositioningContainer = document.getElementById('tank-positioning');
   const canvas = document.getElementById('battlefield-canvas');
-  const context = canvas.getContext('2d');
   const gridSize = 20; // Size of each grid cell
   let selectedTankSide = null;
   let selectedTankId = null;
-  let maps = []; // Store maps data
 
   // Fetch tanks and populate the tank selection dropdowns
   fetch('/api/tanks')
@@ -38,19 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch maps and populate the map selection dropdown
   fetch('/api/maps')
     .then(response => response.json())
-    .then(fetchedMaps => {
-      maps = fetchedMaps;
+    .then(maps => {
       maps.forEach(map => {
         const option = document.createElement('option');
         option.value = map._id;
         option.textContent = map.name;
         mapSelect.appendChild(option);
       });
-      if (maps.length > 0) {
-        renderTerrain(context, maps[0]);  // Render the first map by default
-      } else {
-        console.error('No maps available');
-      }
     })
     .catch(error => {
       console.error('Error fetching maps:', error.message);
@@ -103,9 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tankPositioningContainer.appendChild(tankPositionDiv);
 
-    // Draw the tank icon on the grid
-    drawTankIcon(context, x, y, selectedTankSide);
-
     // Reset selection
     selectedTankSide = null;
     selectedTankId = null;
@@ -121,8 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tank-position').forEach(positionDiv => {
       const inputs = positionDiv.querySelectorAll('input');
       const tankId = inputs[0].name.split('-')[2];
-      const x = Number(inputs[0].value);
-      const y = Number(inputs[1].value);
+      const x = inputs[0].value;
+      const y = inputs[1].value;
 
       if (inputs[0].name.startsWith('allies')) {
         alliesTanks.push({ tankId, x, y });
@@ -155,19 +141,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(error.stack);
       });
   });
-
-  // Event listener for map selection
-  mapSelect.addEventListener('change', (event) => {
-    const selectedMapId = event.target.value;
-    drawGrid(context, canvas);
-    const selectedMap = maps.find(map => map._id === selectedMapId);
-    if (selectedMap) {
-      renderTerrain(context, selectedMap);
-    } else {
-      console.error('Selected map not found in the maps array.');
-    }
-  });
-
-  // Initial grid drawing
-  drawGrid(context, canvas);
 });

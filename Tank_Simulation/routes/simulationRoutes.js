@@ -1,34 +1,19 @@
-import express from 'express';
-import { simulateBattle } from '../utils/simulationEngine.js';
-
+const express = require('express');
 const router = express.Router();
+const { simulateBattle } = require('../utils/simulationEngine');
 
 // POST /api/start-simulation - Start the simulation
 router.post('/api/start-simulation', async (req, res) => {
   const { mapId, alliesTanks, axisTanks } = req.body;
 
   try {
-    // Validate mapId
-    if (!mapId) {
-      return res.status(400).json({ message: 'Map ID is required' });
+    // Validate input data
+    if (!mapId || !Array.isArray(alliesTanks) || !Array.isArray(axisTanks)) {
+      return res.status(400).json({ message: 'Invalid input data' });
     }
 
-    // Validate tank positions
-    if (!Array.isArray(alliesTanks) || !Array.isArray(axisTanks)) {
-      return res.status(400).json({ message: 'Invalid tank data format' });
-    }
-
-    const validateTanks = (tanks) => {
-      return tanks.every(tank => 
-        tank.tankId && typeof tank.tankId === 'string' &&
-        tank.x !== undefined && typeof tank.x === 'number' &&
-        tank.y !== undefined && typeof tank.y === 'number'
-      );
-    };
-
-    if (!validateTanks(alliesTanks) || !validateTanks(axisTanks)) {
-      return res.status(400).json({ message: 'Invalid tank position data' });
-    }
+    // Log the received data for debugging
+    console.log('Received simulation data:', { mapId, alliesTanks, axisTanks });
 
     // Perform the battle simulation
     console.log('Starting simulation with data:', { mapId, alliesTanks, axisTanks });
@@ -55,4 +40,4 @@ router.get('/simulation-results', (req, res) => {
   res.render('simulationResults', { outcome: simulationOutcome });
 });
 
-export default router;
+module.exports = router;
