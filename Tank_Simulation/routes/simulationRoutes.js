@@ -1,26 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const Tank = require('../models/Tank');
-const Map = require('../models/Map');
+const { simulateBattle } = require('../utils/simulationEngine');
 
-// GET /simulation-setup - Render the simulation setup page
-router.get('/simulation-setup', async (req, res) => {
+// POST /api/start-simulation - Start the simulation
+router.post('/api/start-simulation', async (req, res) => {
+  const { mapId, alliesTanks, axisTanks } = req.body;
+
   try {
-    // Fetch all tanks
-    const tanks = await Tank.find({});
-    console.log('Fetched tanks for simulation setup:', tanks);
+    // Perform the battle simulation
+    console.log('Starting simulation with data:', { mapId, alliesTanks, axisTanks });
+    const simulationOutcome = await simulateBattle(mapId, alliesTanks, axisTanks);
 
-    // Fetch all maps
-    const maps = await Map.find({}).populate('terrains');
-    console.log('Fetched maps for simulation setup:', maps);
+    // Store the simulation outcome in the session
+    req.session.simulationOutcome = simulationOutcome;
 
-    // Render the simulation setup page with tanks, maps, and session data
-    res.render('simulationSetup', { tanks, maps, session: req.session });
+    res.status(200).json({ message: 'Simulation completed', outcome: simulationOutcome });
   } catch (error) {
-    console.error('Error fetching data for simulation setup:', error.message);
+    console.error('Error starting simulation:', error.message);
     console.error(error.stack);
-    res.status(500).send('Error fetching data for simulation setup');
+    res.status(500).json({ message: 'Error starting simulation', error: error.message });
   }
+});
+
+// GET /simulation-results - Display the simulation results
+router.get('/simulation-results', (req, res) => {
+  const simulationOutcome = req.session.simulationOutcome;
+  if (!simulationOutcome) {
+    return res.status(404).send('No simulation results found.');
+  }
+
+  res.render('simulationResults', { outcome: simulationOutcome });
 });
 
 module.exports = router;
