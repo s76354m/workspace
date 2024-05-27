@@ -1,3 +1,5 @@
+import { createTankPositionDiv } from './tankPositionHelper.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   const mapSelect = document.getElementById('map-selection');
   const simulationForm = document.getElementById('simulation-setup-form');

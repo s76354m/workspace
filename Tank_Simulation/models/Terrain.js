@@ -17,6 +17,16 @@ const terrainSchema = new Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+    validate: {
+      validator: function(arr) {
+        return arr.length === 2;
+      },
+      message: 'Coordinates must be an array of two numbers [x, y]'
+    }
   }
 }, {
   timestamps: true

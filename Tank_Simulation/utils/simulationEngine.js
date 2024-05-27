@@ -30,10 +30,50 @@ const simulateBattle = async (mapId, alliesTanks, axisTanks) => {
 
     return outcomes;
   } catch (error) {
-    console.error('Error in simulateBattle:', error.message);
+    console.error('Error in simulateBattle at:', { mapId, alliesTanks, axisTanks });
+    console.error('Error details:', error.message);
     console.error(error.stack);
     throw error;
   }
+};
+
+const getTerrainEffects = (map, tank) => {
+  if (!tank || typeof tank.x === 'undefined' || typeof tank.y === 'undefined') {
+    console.error('Invalid tank object:', tank);
+    return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if tank is invalid
+  }
+  if (!map || !map.terrains) {
+    console.error('Invalid map object:', map);
+    return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if map is invalid
+  }
+
+  const terrain = map.terrains.find(t => t.coordinates[0] === tank.x && t.coordinates[1] === tank.y);
+  if (terrain) {
+    return { movementEffect: terrain.movementEffect, combatEffect: terrain.combatEffect };
+  }
+  return { movementEffect: 1, combatEffect: 1 }; // Default to no effect if no terrain found
+};
+
+const calculateAdjustedAttributes = (tank, tankDetails, map) => {
+  const tankInfo = tankDetails[tank.tankId];
+  if (!tankInfo) {
+    console.error('Tank details not found for tankId:', tank.tankId);
+    return { ...tank, outcome: 'unknown', adjustedMovement: 0, adjustedCombat: 0, x: tank.x, y: tank.y };
+  }
+
+  const terrainEffects = getTerrainEffects(map, tank);
+
+  const adjustedMovement = tankInfo.movement * terrainEffects.movementEffect;
+  const adjustedCombat = tankInfo.combat * terrainEffects.combatEffect;
+
+  return {
+    ...tank,
+    outcome: 'survived',
+    adjustedMovement,
+    adjustedCombat,
+    x: tank.x,
+    y: tank.y
+  };
 };
 
 const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
