@@ -1,21 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
   const mapSelect = document.getElementById('map-selection');
-  const startSimulationButton = document.getElementById('start-simulation');
+  const simulationForm = document.getElementById('simulation-setup-form');
+  const alliesTankSelect = document.getElementById('allies-tank');
+  const axisTankSelect = document.getElementById('axis-tank');
+  const tankPositioningContainer = document.getElementById('tank-positioning');
 
   // Fetch tanks and populate the tank selection dropdowns
   fetch('/api/tanks')
     .then(response => response.json())
     .then(tanks => {
       tanks.forEach(tank => {
-        const optionAllies = document.createElement('option');
-        optionAllies.value = tank._id;
-        optionAllies.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        document.getElementById('allies-tank-selection').appendChild(optionAllies);
+        const alliesOption = document.createElement('option');
+        alliesOption.value = tank._id;
+        alliesOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
+        alliesTankSelect.appendChild(alliesOption);
 
-        const optionAxis = document.createElement('option');
-        optionAxis.value = tank._id;
-        optionAxis.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        document.getElementById('axis-tank-selection').appendChild(optionAxis);
+        const axisOption = document.createElement('option');
+        axisOption.value = tank._id;
+        axisOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
+        axisTankSelect.appendChild(axisOption);
       });
     })
     .catch(error => {
@@ -40,32 +43,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   // Function to add tank position inputs
-  const addTankPositionInputs = (container, side) => {
-    const selectedTankId = side === 'allies' ? document.getElementById('allies-tank-selection').value : document.getElementById('axis-tank-selection').value;
-    const tankPositionDiv = document.createElement('div');
-    tankPositionDiv.className = 'tank-position';
+  const addTankPositionInputs = (container, side, tankId, quantity) => {
+    for (let i = 0; i < quantity; i++) {
+      const tankPositionDiv = document.createElement('div');
+      tankPositionDiv.className = 'tank-position';
 
-    const label = document.createElement('label');
-    label.textContent = `Position for ${side === 'allies' ? 'Allies' : 'Axis'} Tank (ID: ${selectedTankId}):`;
-    tankPositionDiv.appendChild(label);
+      const label = document.createElement('label');
+      label.textContent = `Position for ${side === 'allies' ? 'Allies' : 'Axis'} Tank (ID: ${tankId}):`;
+      tankPositionDiv.appendChild(label);
 
-    const xInput = document.createElement('input');
-    xInput.type = 'number';
-    xInput.name = `${side}-tank-${selectedTankId}-x`;
-    xInput.placeholder = 'X Coordinate';
-    tankPositionDiv.appendChild(xInput);
+      const xInput = document.createElement('input');
+      xInput.type = 'number';
+      xInput.name = `${side}-tank-${tankId}-x`;
+      xInput.placeholder = 'X Coordinate';
+      tankPositionDiv.appendChild(xInput);
 
-    const yInput = document.createElement('input');
-    yInput.type = 'number';
-    yInput.name = `${side}-tank-${selectedTankId}-y`;
-    yInput.placeholder = 'Y Coordinate';
-    tankPositionDiv.appendChild(yInput);
+      const yInput = document.createElement('input');
+      yInput.type = 'number';
+      yInput.name = `${side}-tank-${tankId}-y`;
+      yInput.placeholder = 'Y Coordinate';
+      tankPositionDiv.appendChild(yInput);
 
-    container.appendChild(tankPositionDiv);
+      container.appendChild(tankPositionDiv);
+    }
   };
 
-  // Event listener for starting the simulation
-  startSimulationButton.addEventListener('click', () => {
+  // General function to handle adding tank positions
+  const handleAddTank = (tankSelect, quantityInput, side) => {
+    const selectedTankId = tankSelect.value;
+    const quantity = parseInt(quantityInput.value, 10);
+    addTankPositionInputs(tankPositioningContainer, side, selectedTankId, quantity);
+  };
+
+  // Event listener for adding Allies tank positions
+  document.getElementById('add-allies-tank').addEventListener('click', () => {
+    handleAddTank(alliesTankSelect, document.getElementById('allies-quantity'), 'allies');
+  });
+
+  // Event listener for adding Axis tank positions
+  document.getElementById('add-axis-tank').addEventListener('click', () => {
+    handleAddTank(axisTankSelect, document.getElementById('axis-quantity'), 'axis');
+  });
+
+  // Event listener for form submission
+  simulationForm.addEventListener('submit', (event) => {
+    event.preventDefault();
     const selectedMapId = mapSelect.value;
     const alliesTanks = [];
     const axisTanks = [];

@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const tankRoutes = require("./routes/tankRoutes"); // Import tank routes
 const terrainRoutes = require("./routes/terrainRoutes"); // Import terrain routes
 const mapRoutes = require("./routes/mapRoutes"); // Import map routes
+const simulationRoutes = require("./routes/simulationRoutes"); // Import simulation routes
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -61,14 +62,17 @@ app.use('/api/terrains', terrainRoutes); // Use terrain routes
 // Map Management Routes
 app.use('/api/maps', mapRoutes); // Use map routes
 
-// Simulation Setup Page Route
-app.get("/simulation-setup", (req, res) => {
-  res.render("simulationSetup");
-});
+// Simulation Routes
+app.use(simulationRoutes); // Use simulation routes
 
 // Root path response
 app.get("/", (req, res) => {
   res.render("index");
+});
+
+// Simulation Setup Page Route
+app.get("/simulation-setup", (req, res) => {
+  res.render("simulationSetup");
 });
 
 // If no routes handled the request, it's a 404
