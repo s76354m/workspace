@@ -22,7 +22,7 @@ app.set("view engine", "ejs");
 // Middleware to set MIME type for ES modules
 app.use((req, res, next) => {
   if (req.path.endsWith('.js')) {
-    res.setHeader('Content-Type', 'application/javascript');
+    res.type('application/javascript');
   }
   next();
 });
