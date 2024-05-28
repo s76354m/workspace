@@ -31,6 +31,7 @@ async function seedMapsAndTerrains() {
     const createdTerrains = await Terrain.insertMany(terrains);
     console.log('Seeded terrain data successfully');
 
+    // Update maps to correctly reference the coordinates field in terrains
     maps[0].terrains = [createdTerrains[0]._id, createdTerrains[3]._id];
     maps[1].terrains = [createdTerrains[2]._id];
     maps[2].terrains = [createdTerrains[1]._id, createdTerrains[3]._id];

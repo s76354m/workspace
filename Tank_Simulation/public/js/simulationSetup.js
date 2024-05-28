@@ -1,3 +1,5 @@
+import { createTankPositionDiv } from './tankPositionHelper.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   const mapSelect = document.getElementById('map-selection');
   const simulationForm = document.getElementById('simulation-setup-form');
@@ -14,15 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(tanks => {
       tanks.forEach(tank => {
-        const alliesOption = document.createElement('option');
-        alliesOption.value = tank._id;
-        alliesOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        alliesTankSelect.appendChild(alliesOption);
-
-        const axisOption = document.createElement('option');
-        axisOption.value = tank._id;
-        axisOption.textContent = `${tank.name} (Frontal Armor: ${tank.frontalArmor}, Side Armor: ${tank.sideArmor}, Gun Size: ${tank.mainGunSize}, Penetration: ${tank.mainGunPenetration})`;
-        axisTankSelect.appendChild(axisOption);
+        appendTankOptions(tank, alliesTankSelect);
+        appendTankOptions(tank, axisTankSelect);
       });
     })
     .catch(error => {
@@ -107,8 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tank-position').forEach(positionDiv => {
       const inputs = positionDiv.querySelectorAll('input');
       const tankId = inputs[0].name.split('-')[2];
-      const x = inputs[0].value;
-      const y = inputs[1].value;
+      const x = parseInt(inputs[0].value, 10);
+      const y = parseInt(inputs[1].value, 10);
 
       if (inputs[0].name.startsWith('allies')) {
         alliesTanks.push({ tankId, x, y });
@@ -135,10 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Simulation started:', data);
         // Redirect to the simulation results page
         window.location.href = '/simulation-results';
+        // Redirect to the simulation results page
+        window.location.href = '/simulation-results';
       })
       .catch(error => {
         console.error('Error starting simulation:', error.message);
         console.error(error.stack);
+        alert('Failed to start simulation. Please try again later.');
       });
   });
 });

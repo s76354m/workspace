@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { simulateBattle } = require('../utils/simulationEngine');
 
+// Function to validate tank positions
+const validateTankPositions = (tanks) => {
+  return tanks.every(tank => 
+    Number.isInteger(tank.x) && tank.x >= 0 &&
+    Number.isInteger(tank.y) && tank.y >= 0
+  );
+};
+
 // POST /api/start-simulation - Start the simulation
 router.post('/api/start-simulation', async (req, res) => {
   const { mapId, alliesTanks, axisTanks } = req.body;

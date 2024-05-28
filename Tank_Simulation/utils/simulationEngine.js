@@ -30,7 +30,8 @@ const simulateBattle = async (mapId, alliesTanks, axisTanks) => {
 
     return outcomes;
   } catch (error) {
-    console.error('Error in simulateBattle:', error.message);
+    console.error('Error in simulateBattle at:', { mapId, alliesTanks, axisTanks });
+    console.error('Error details:', error.message);
     console.error(error.stack);
     throw error;
   }
@@ -77,15 +78,22 @@ const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
   alliesTanks.forEach(tank => {
     const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
     outcomes.allies.tanks.push(adjustedTank);
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    outcomes.allies.tanks.push(adjustedTank);
   });
 
   axisTanks.forEach(tank => {
     const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
     adjustedTank.outcome = 'destroyed'; // Assuming all axis tanks are destroyed
     outcomes.axis.tanks.push(adjustedTank);
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    adjustedTank.outcome = 'destroyed'; // Assuming all axis tanks are destroyed
+    outcomes.axis.tanks.push(adjustedTank);
   });
 
   outcomes.shotsFired = alliesTanks.length + axisTanks.length;
+  outcomes.allies.damageDealt = outcomes.allies.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
+  outcomes.axis.damageDealt = outcomes.axis.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
   outcomes.allies.damageDealt = outcomes.allies.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
   outcomes.axis.damageDealt = outcomes.axis.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
   outcomes.axis.tanksDestroyed = axisTanks.length;
