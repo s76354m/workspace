@@ -21,17 +21,24 @@
     <h3>Allies Tanks</h3>
     <ul>
       <% outcome.allies.tanks.forEach(tank => { %>
-        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %></li>
+        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %> - Position: (<%= tank.x %>, <%= tank.y %>)</li>
       <% }); %>
     </ul>
     <h3>Axis Tanks</h3>
     <ul>
       <% outcome.axis.tanks.forEach(tank => { %>
-        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %></li>
+        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %> - Position: (<%= tank.x %>, <%= tank.y %>)</li>
       <% }); %>
     </ul>
   </div>
+
+  <!-- Canvas for results grid -->
+  <div class="results-grid">
+    <canvas id="results-canvas" width="800" height="600"></canvas>
+  </div>
+
 </main>
 <%- include('partials/_footer.ejs') %>
+<script type="module" src="/js/resultsGrid.js"></script>
 </body>
 </html>

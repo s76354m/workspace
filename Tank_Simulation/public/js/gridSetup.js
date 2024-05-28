@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('battlefield-canvas');
   const context = canvas.getContext('2d');

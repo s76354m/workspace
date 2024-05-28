@@ -77,7 +77,6 @@ const calculateAdjustedAttributes = (tank, tankDetails, map) => {
 };
 
 const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
-  // Placeholder for battle logic
   const outcomes = {
     shotsFired: 0,
     allies: {
@@ -92,24 +91,20 @@ const simulateEngagements = (map, alliesTanks, axisTanks, tankDetails) => {
     },
   };
 
-  // Simulate each tank's action
   alliesTanks.forEach(tank => {
-    const tankInfo = tankDetails[tank.tankId];
-    // Add placeholder outcome
-    outcomes.allies.tanks.push({ ...tank, outcome: 'survived' });
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    outcomes.allies.tanks.push(adjustedTank);
   });
 
   axisTanks.forEach(tank => {
-    const tankInfo = tankDetails[tank.tankId];
-    // Add placeholder outcome
-    outcomes.axis.tanks.push({ ...tank, outcome: 'destroyed' });
+    const adjustedTank = calculateAdjustedAttributes(tank, tankDetails, map);
+    adjustedTank.outcome = 'destroyed'; // Assuming all axis tanks are destroyed
+    outcomes.axis.tanks.push(adjustedTank);
   });
 
-  // Update placeholder statistics
   outcomes.shotsFired = alliesTanks.length + axisTanks.length;
-  outcomes.allies.damageDealt = alliesTanks.length * 10;
-  outcomes.allies.tanksDestroyed = 0;
-  outcomes.axis.damageDealt = axisTanks.length * 10;
+  outcomes.allies.damageDealt = outcomes.allies.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
+  outcomes.axis.damageDealt = outcomes.axis.tanks.reduce((sum, tank) => sum + tank.adjustedCombat, 0);
   outcomes.axis.tanksDestroyed = axisTanks.length;
 
   return outcomes;
