@@ -23,6 +23,7 @@ app.set("view engine", "ejs");
 app.use((req, res, next) => {
   if (req.path.endsWith('.js')) {
     res.type('application/javascript');
+
   }
   next();
 });

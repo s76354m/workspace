@@ -20,6 +20,7 @@ router.post('/api/start-simulation', async (req, res) => {
       return res.status(400).json({ message: 'Invalid input data' });
     }
 
+
     // Ensure tank positions are correctly formatted
     const formatTankPositions = (tanks) => {
       return tanks.map(tank => ({
@@ -39,6 +40,7 @@ router.post('/api/start-simulation', async (req, res) => {
 
     // Log the received data for debugging
     console.log('Received simulation data:', { mapId, alliesTanks: formattedAlliesTanks, axisTanks: formattedAxisTanks });
+
 
     // Perform the battle simulation
     console.log('Starting simulation with data:', { mapId, alliesTanks: formattedAlliesTanks, axisTanks: formattedAxisTanks });

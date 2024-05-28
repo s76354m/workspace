@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     selectElement.appendChild(option);
   };
 
+
   // Fetch tanks and populate the tank selection dropdowns
   fetch('/api/tanks')
     .then(response => response.json())
@@ -72,7 +73,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const x = Math.floor((event.clientX - rect.left) / gridSize);
     const y = Math.floor((event.clientY - rect.top) / gridSize);
 
-    const tankPositionDiv = createTankPositionDiv(selectedTankSide, selectedTankId, x, y);
+
+    const tankPositionDiv = document.createElement('div');
+    tankPositionDiv.className = 'tank-position';
+
+    const label = document.createElement('label');
+    label.textContent = `Position for ${selectedTankSide === 'allies' ? 'Allies' : 'Axis'} Tank (ID: ${selectedTankId}):`;
+    tankPositionDiv.appendChild(label);
+
+    const xInput = document.createElement('input');
+    xInput.type = 'number';
+    xInput.name = `${selectedTankSide}-tank-${selectedTankId}-x`;
+    xInput.value = x;
+    xInput.readOnly = true;
+    tankPositionDiv.appendChild(xInput);
+
+    const yInput = document.createElement('input');
+    yInput.type = 'number';
+    yInput.name = `${selectedTankSide}-tank-${selectedTankId}-y`;
+    yInput.value = y;
+    yInput.readOnly = true;
+    tankPositionDiv.appendChild(yInput);
+
+
     tankPositioningContainer.appendChild(tankPositionDiv);
 
     // Reset selection
