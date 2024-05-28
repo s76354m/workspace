@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/_head.ejs') %>
+  </head>
+<body>
+<%- include('partials/_header.ejs') %>
+<main role="main" class="container mt-4">
+  <div class="text-center">
+    <h1>Simulation Results</h1>
+  </div>
+  <div class="results-summary">
+    <h3>Summary</h3>
+    <p>Shots Fired: <%= outcome.shotsFired %></p>
+    <h4>Allies</h4>
+    <p>Damage Dealt: <%= outcome.allies.damageDealt %></p>
+    <p>Tanks Destroyed: <%= outcome.allies.tanksDestroyed %></p>
+    <h4>Axis</h4>
+    <p>Damage Dealt: <%= outcome.axis.damageDealt %></p>
+    <p>Tanks Destroyed: <%= outcome.axis.tanksDestroyed %></p>
+  </div>
+  <div class="tanks-outcome">
+    <h3>Allies Tanks</h3>
+    <ul>
+      <% outcome.allies.tanks.forEach(tank => { %>
+        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %></li>
+      <% }); %>
+    </ul>
+    <h3>Axis Tanks</h3>
+    <ul>
+      <% outcome.axis.tanks.forEach(tank => { %>
+        <li>Tank ID: <%= tank.tankId %> - Outcome: <%= tank.outcome %></li>
+      <% }); %>
+    </ul>
+  </div>
+  <div class="results-grid">
+    <canvas id="results-canvas"></canvas>
+  </div>
+</main>
+<%- include('partials/_footer.ejs') %>
+<script src="/js/resultsGrid.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const outcome = '<%- JSON.stringify(outcome) %>'
+    initializeResultsGrid(outcome);
+  });
+</script>
+</body>
+</html>
